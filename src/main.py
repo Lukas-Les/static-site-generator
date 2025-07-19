@@ -1,9 +1,10 @@
-from textnode import TextNode
+from textnode import TextNode, TextType
+
 
 def main():
-    node_1 = TextNode("aaa", "text")
-    node_2 = TextNode("cat", "image", url="https/cat.com")
-    print(node_1)
-    print(node_2)
+    node = TextNode("This is a text node", TextType.BOLD, "https://www.boot.dev")
+    print(node)
+
 
 main()
+
