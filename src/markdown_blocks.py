@@ -160,7 +160,7 @@ def extract_title(markdown: str) -> str:
     raise Exception("h1 was not found")
 
 
-def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
+def generate_page(basepath: str, from_path: str, template_path: str, dest_path: str) -> None:
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     with open(from_path, "r") as f:
         markdown = f.read()
@@ -171,6 +171,8 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
     title = extract_title(markdown)
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", html_str)
+    template = template.replace('href="/', f'href="{basepath}')
+    template = template.replace('src="/', f'src="{basepath}')
     dest_dir = pathlib.Path(dest_path).parent
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
@@ -178,15 +180,15 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
         f.write(template)
 
 
-def _generate_pages(from_path: str, template_path: str, dest_path: str):
+def _generate_pages(basepath: str, from_path: str, template_path: str, dest_path: str):
     if os.path.isfile(from_path):
-        generate_page(from_path, template_path, dest_path)
+        generate_page(basepath, from_path, template_path, dest_path)
         return
     for content in os.listdir(from_path):
         _generate_pages(
-            os.path.join(from_path, content), template_path, os.path.join(dest_path, content)
+            basepath, os.path.join(from_path, content), template_path, os.path.join(dest_path, content)
         )
 
 
-def generate_pages(from_path: str, template_path: str, dest_path: str) -> None:
-    _generate_pages(from_path, template_path, dest_path)
+def generate_pages(basepath: str, from_path: str, template_path: str, dest_path: str) -> None:
+    _generate_pages(basepath, from_path, template_path, dest_path)
