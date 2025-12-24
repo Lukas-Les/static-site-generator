@@ -1,4 +1,6 @@
 from enum import Enum
+import os
+import pathlib
 
 from htmlnode import ParentNode
 from inline_markdown import text_to_textnodes
@@ -156,3 +158,35 @@ def extract_title(markdown: str) -> str:
         if line.startswith("# "):
             return line.split("# ")[1].strip()
     raise Exception("h1 was not found")
+
+
+def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    with open(from_path, "r") as f:
+        markdown = f.read()
+    with open(template_path, "r") as f:
+        template = f.read()
+    html_node = markdown_to_html_node(markdown)
+    html_str = html_node.to_html()
+    title = extract_title(markdown)
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", html_str)
+    dest_dir = pathlib.Path(dest_path).parent
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+    with open(dest_path.replace(".md", ".html"), "w") as f:
+        f.write(template)
+
+
+def _generate_pages(from_path: str, template_path: str, dest_path: str):
+    if os.path.isfile(from_path):
+        generate_page(from_path, template_path, dest_path)
+        return
+    for content in os.listdir(from_path):
+        _generate_pages(
+            os.path.join(from_path, content), template_path, os.path.join(dest_path, content)
+        )
+
+
+def generate_pages(from_path: str, template_path: str, dest_path: str) -> None:
+    _generate_pages(from_path, template_path, dest_path)
