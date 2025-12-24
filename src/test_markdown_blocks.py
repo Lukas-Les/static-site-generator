@@ -6,6 +6,7 @@ from markdown_blocks import (
     block_to_block_type,
     BlockType,
 )
+import markdown_blocks
 
 
 class TestMarkdownToHTML(unittest.TestCase):
@@ -164,6 +165,10 @@ the **same** even with inline stuff
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
 
+    def test_extract_title(self):
+        text = "# hello"
+        result = markdown_blocks.extract_title(text)
+        assert result == "hello"
 
 if __name__ == "__main__":
     unittest.main()
